@@ -25,6 +25,7 @@ const docRef = await addDoc(collection(db, "tarefa"), {
 }
 
 async function consultarTarefa(){
+    bloco.innerHTML = "" // Limpando o elemento HTML de inserir novos registos, para não acumular dados
     const busca = query(collection(db, "tarefa"), orderBy("nome"));
 
     const resultado = await getDocs(busca);
@@ -42,13 +43,40 @@ async function consultarTarefa(){
                                 
 
         <div class="d-flex gap-2 justify-content-end">
-        <button type="button" class="btn btn-danger" id="excluir">Excluir</button>
-        <button type="button" class="btn btn-info" id="alerar">Alterar</button>
+        <button type="button" class="btn btn-danger" id="${item.id}">Excluir</button>
+        <button type="button" class="btn btn-info" id="${item.id}">Alterar</button>
         </div>
         </li>
     `
+    document.querySelectorAll(".btn-danger").forEach((elemento)=>{
+        elemento.addEventListener("click",(evento)=>{
+            //alert("Botão excluir acionado")
+            console.log(evento.target.id)
+            exluirTarefa(evento.target.id)
+        })
+    })
     });
 }
+
+document.querySelector(".btn-info").forEach((elemento)=>{
+    elemento.addEventListener("click",()=>{
+        if(formAtualizar.classlist.contains("d-nome")){
+            formCadastrar.classlist.replace("d-block", "d-none")
+            formAtualizar.classlist.replace("d-none", "d-block")
+        }
+    })
+})
+
+async function exluirTarefa(){
+    let resultado = confirm("tem certeza que deseja excluir?")
+    if(resultado){
+        await deleteDoc(doc(db, "tarefa", id));
+        alert("Tarefa exluida com sucesso")
+
+        consultarTarefa()//recarregar os dados apos exluir
+    }
+}
+
 
 btnTarefa.addEventListener("click",(evento)=>{
     evento.preventDefault()

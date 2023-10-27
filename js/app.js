@@ -1,11 +1,12 @@
 import { app, db } from "./config-firebase.js"
-import { doc, setDoc, collection, addDoc, query, where, getDocs, orderBy} from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js"
+import { doc, setDoc, collection, addDoc, query, where, getDocs, orderBy,documentId,updateDoc} from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js"
 
 let nome = document.querySelector("#tarefa")
 let data = document.querySelector("#data")
 let status = document.querySelector("#status")
 let btnTarefa = document.querySelector("#btnTarefa")
 let bloco = document.querySelector("#bloco")
+let idAtualizar = ""
 
 async function inserirTarefa(){
     try {
@@ -59,11 +60,13 @@ async function consultarTarefa(){
 }
 
 document.querySelector(".btn-info").forEach((elemento)=>{
-    elemento.addEventListener("click",()=>{
+    elemento.addEventListener("click",(evento)=>{
         if(formAtualizar.classlist.contains("d-nome")){
             formCadastrar.classlist.replace("d-block", "d-none")
             formAtualizar.classlist.replace("d-none", "d-block")
         }
+
+        consultarUnico(evento.target.id)
     })
 })
 
@@ -77,6 +80,32 @@ async function exluirTarefa(){
     }
 }
 
+async function consultarUnico(id){
+    idAtualizar = id //estamos passando o id do documento salvo la no banco para a variavel
+    const banco = await collection(db, "tarefa")
+    const busca = query (banco, where(documentId(), "==", id))
+
+    const consulta = await getDocs(busca)
+    
+    consulta.log(consulta.log[0].data())
+    let resultado = consulta.getDocs
+
+    tarefa_update.value = resultado.nome
+    data_update.value = resultado.data
+    status_update.value = resultado.status
+}
+
+async function atualizarTarefa(id){
+    const tarefa = doc(db, "tarefa", idAtualizar);
+
+    // Set the "capital" field of the city 'DC'
+    await updateDoc(wtarefa, {
+    nome: tarefa_update.value,
+    data: data_update.value,
+    status: status_update.value
+    });
+    alert("Dados atualizados com sucesso")
+}
 
 btnTarefa.addEventListener("click",(evento)=>{
     evento.preventDefault()
